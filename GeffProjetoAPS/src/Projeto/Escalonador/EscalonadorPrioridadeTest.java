@@ -228,4 +228,164 @@ class EscalonadorPrioridadeTest {
 			    "    Tick: 0\n"+
 			    "    Quantium: 3");
 	}
+	@Test//19
+	public void testEscalaNoMesmoNivel1() {
+		EscalonadorPrioridade ep = new EscalonadorPrioridade(3);
+		ep.addProcesso(new ProcessoPrioridade("P1",1));
+		ep.addProcesso(new ProcessoPrioridade("P2",1));
+		assertEquals(ep.getStatus(),("Status: 1 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    2 - \n"
+				+ "    3 - \n"
+				+ "    4 - \n"
+				+ "    Tick: 0\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    2 - \n"
+				+ "    3 - \n"
+				+ "    4 - \n"
+				+ "    Tick: 1\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    2 - \n"
+				+ "    3 - \n"
+				+ "    4 - \n"
+				+ "    Tick: 2\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    2 - \n"
+				+ "    3 - \n"
+				+ "    4 - \n"
+				+ "    Tick: 3\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP1 (Esperando)\n"
+				+ "    2 - \n"
+				+ "    3 - \n"
+				+ "    4 - \n"
+				+ "    Tick: 4\n"
+				+ "    Quantium: 3"));
+	}
+	@Test//20
+	public void testEscalaNoMesmoNivel2() {
+		EscalonadorPrioridade ep = new EscalonadorPrioridade(3);
+		ep.addProcesso(new ProcessoPrioridade("P1",2));
+		ep.addProcesso(new ProcessoPrioridade("P2",2));
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    3 - \n"
+				+ "    4 - \n"
+				+ "    Tick: 0\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    3 - \n"
+				+ "    4 - \n"
+				+ "    Tick: 1\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    3 - \n"
+				+ "    4 - \n"
+				+ "    Tick: 2\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    3 - \n"
+				+ "    4 - \n"
+				+ "    Tick: 3\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P2 (Executando)\nP1 (Esperando)\n"
+				+ "    3 - \n"
+				+ "    4 - \n"
+				+ "    Tick: 4\n"
+				+ "    Quantium: 3"));
+	}
+	@Test//21
+	public void testEscalaNoMesmoNivel3() {
+		EscalonadorPrioridade ep = new EscalonadorPrioridade(3);
+		ep.addProcesso(new ProcessoPrioridade("P1",3));
+		ep.addProcesso(new ProcessoPrioridade("P2",3));
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - \n"
+				+ "    3 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    4 - \n"
+				+ "    Tick: 0\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - \n"
+				+ "    3 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    4 - \n"
+				+ "    Tick: 1\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - \n"
+				+ "    3 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    4 - \n"
+				+ "    Tick: 2\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - \n"
+				+ "    3 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    4 - \n"
+				+ "    Tick: 3\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - \n"
+				+ "    3 - P2 (Executando)\nP1 (Esperando)\n"
+				+ "    4 - \n"
+				+ "    Tick: 4\n"
+				+ "    Quantium: 3"));
+	}
+	@Test//22
+	public void testEscalaNoMesmoNivel4() {
+		EscalonadorPrioridade ep = new EscalonadorPrioridade(3);
+		ep.addProcesso(new ProcessoPrioridade("P1",4));
+		ep.addProcesso(new ProcessoPrioridade("P2",4));
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - \n"
+				+ "    3 - \n"
+				+ "    4 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    Tick: 0\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - \n"
+				+ "    3 - \n"
+				+ "    4 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    Tick: 1\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - \n"
+				+ "    3 - \n"
+				+ "    4 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    Tick: 2\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - \n"
+				+ "    3 - \n"
+				+ "    4 - P1 (Executando)\nP2 (Esperando)\n"
+				+ "    Tick: 3\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - \n"
+				+ "    3 - \n"
+				+ "    4 - P2 (Executando)\nP1 (Esperando)\n"
+				+ "    Tick: 4\n"
+				+ "    Quantium: 3"));
+	}
 }

@@ -35,25 +35,25 @@ public class EscalonadorPrioridade extends Escalonador{
 		}else {
 			statusComplemento += "1 - ";
 			if(this.p1.temProcesso()) {
-				statusComplemento += p1.geraStatus();
+				statusComplemento += p1.geraStatusComplemento();
 			}else {
 				statusComplemento +="\n";
 			}
 			statusComplemento += "    2 - ";
 			if(this.p2.temProcesso()) {
-				statusComplemento += p2.geraStatus();
+				statusComplemento += p2.geraStatusComplemento();
 			}else {
 				statusComplemento +="\n";
 			}
 			statusComplemento += "    3 - ";
 			if(this.p3.temProcesso()) {
-				statusComplemento += p3.geraStatus();
+				statusComplemento += p3.geraStatusComplemento();
 			}else {
 				statusComplemento +="\n";
 			}
 			statusComplemento += "    4 - ";
 			if(this.p4.temProcesso()) {
-				statusComplemento += p4.geraStatus();
+				statusComplemento += p4.geraStatusComplemento();
 			}else {
 				statusComplemento +="\n";
 			}
@@ -68,13 +68,44 @@ public class EscalonadorPrioridade extends Escalonador{
 			return true;
 		}
 		return false;
-	}
+	}//Fatorar esse metodo
 	public int getTick() {
 		return tick;
 	}
 	public void avancarTick() {
+		this.intercalaProcesso();
 		this.tick++;
 	}
+	/*public void intercalaProcesso() {
+		if(this.p1.)    //Começo do fatoramento do intercalaProcesso()
+	}*/
+	public void intercalaProcesso() {
+		if (this.p1.temProcessosExecutando()) {
+			if (this.p1.haProcessoEsperando()) {
+				this.p1.intercalaProcesso();
+			}
+		} else if (this.p2.temProcessosExecutando()) {
+			if (this.p2.haProcessoEsperando()) {
+				this.p2.intercalaProcesso();
+			}
+		} else if (this.p3.temProcessosExecutando()) {
+			if (this.p3.haProcessoEsperando()) {
+				this.p3.intercalaProcesso();
+			}
+		} else if (this.p4.temProcessosExecutando()) {
+			if (this.p4.haProcessoEsperando()) {
+				this.p4.intercalaProcesso();
+			}
+		}
+	}
+	/*public void intercalaProcesso() {
+		if(this.haProcessoEsperando()) {
+			this.incrementaTempoNoEscalonador();
+			if (this.estourouQuantium()) {
+				this.executaProximoProcesso();
+			}
+		}
+	}*/
 	public void addProcesso(ProcessoPrioridade p) {
 		if(p.getPrioridade() == 1) {
 			p1.addProcesso(p);

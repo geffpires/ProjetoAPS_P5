@@ -29,5 +29,13 @@ public class Processo {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	public void incrementaTempoNoEscalonador() {
+		this.qantTickNoEscalonador++;
+	}
+	public void zerarTempoNoEscalonador() {
+		// TODO Auto-generated method stub
+		this.qantTickNoEscalonador = 0;
+		
+	}
 
 }

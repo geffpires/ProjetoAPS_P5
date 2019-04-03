@@ -29,44 +29,67 @@ public class Escalonador {
 	}
 	public String getStatus() {
 		status = "Status: ";
-		return status+this.geraStatus()+
+		return status+this.geraStatusComplemento()+
 				"    Tick: "+this.getTick()+"\n"+
 				"    Quantium: "+this.getQuantium();
 		
 	}
-	public String geraStatus() {
+	public String geraStatusComplemento() {
 		String statusComplemento = "";
 		if (this.processos.size() == 0 && this.executando == null && this.bloqueados.size() ==0) {
 			return "Nenhum processo\n";
 		}else if(this.executando != null) {
 			statusComplemento += executando.getStatus()+"\n";
 		}
-		for (Processo p:processos) {
-			statusComplemento+= p.getStatus()+"\n";
-		};
-		for (Processo p:bloqueados) {
-			statusComplemento+= p.getStatus()+"\n";
-		}
+		statusComplemento += this.geraStatus(this.processos)+this.geraStatus(this.bloqueados);
 		return statusComplemento;
+	}
+	public String geraStatus(List<Processo> processos) {
+		String statusDosProcessos = "";
+		for (Processo p:processos) {
+			statusDosProcessos+= p.getStatus()+"\n";
+		};
+		return statusDosProcessos;
+		
 	}
 	public int getTick() {
 		return tick;
 	}
 	public void avancarTick() {
 		
-		if(this.processos.size()>0) {
-			this.executando.setQantTickNoEscalonador(this.executando.getQantTickNoEscalonador()+1);
-			if (this.executando.getQantTickNoEscalonador()>this.quantium) {
-				this.executando.setStatus("Esperando");
-				this.executando.setQantTickNoEscalonador(0);
-				this.processos.add(executando);
-				this.processos.get(0).setStatus("Executando");
-				this.executando=this.processos.get(0);
-				this.processos.remove(0);
-				this.executando.setQantTickNoEscalonador(0);
-			}//trocar para os metodos gets e sets
-		}
+		this.intercalaProcesso();
 		this.tick++;
+	}
+	public void intercalaProcesso() {
+		if(this.haProcessoEsperando()) {
+			this.incrementaTempoNoEscalonador();
+			if (this.estourouQuantium()) {
+				this.executaProximoProcesso();
+			}
+		}
+	}
+	public boolean estourouQuantium() {
+		if (this.executando.getQantTickNoEscalonador()>this.quantium) {
+			return true;
+		}
+		return false;
+	}
+	public void executaProximoProcesso() {
+		this.executandoVaiParaEspera();
+		this.esperandoVaiParaExecutar();
+	}
+	public void executandoVaiParaEspera() {
+		this.executando.setStatus("Esperando");
+		this.executando.setQantTickNoEscalonador(0);
+		this.processos.add(executando);
+		//trocar para os metodos gets e sets
+	}
+	public void esperandoVaiParaExecutar() {
+		this.processos.get(0).setStatus("Executando");
+		this.executando=this.processos.get(0);
+		this.processos.remove(0);
+		this.executando.setQantTickNoEscalonador(0);//garantindo que vai começar com 0 no tempo do escalonador
+		//trocar para os metodos gets e set
 	}
 	public Processo getExecutando() {
 		return executando;
@@ -85,9 +108,22 @@ public class Escalonador {
 		else {
 			this.addProcessoSemExecutar(p);
 		}
-		
 	}
-
+	public boolean haProcessoEsperando() {
+		if(this.processos.size()>0) {
+			return true;
+		}
+		return false;
+	}
+	public boolean haProcessoBloqueado() {
+		if(this.bloqueados.size() > 0) {
+			return true;
+		}
+		return false;
+	}
+	public void incrementaTempoNoEscalonador() {
+		this.executando.incrementaTempoNoEscalonador();
+	}
 	public void finalizarProcesso(String nome) {
 		if (executando.getNome() == nome) {
 			executando = null;
@@ -105,17 +141,20 @@ public class Escalonador {
 			}
 		}
 	}
+	public void zeraQuantNoEscalonador() {
+		this.executando.zerarTempoNoEscalonador();
+	}
 	public void bloquearProcesso(String nome) {
 		// TODO Auto-generated method stub
 		if(this.executando.getNome() == nome) {
-			this.executando.setQantTickNoEscalonador(0);
+			this.zeraQuantNoEscalonador();
 			this.executando.setStatus("Bloqueado");
 			this.bloqueados.add(executando);
 			this.executando = null;
-			if(this.processos.size()>0) {
+			if(this.haProcessoEsperando()) {
 				this.executando = processos.get(0);
 				this.executando.setStatus("Executando");
-				this.executando.setQantTickNoEscalonador(0);
+				this.zeraQuantNoEscalonador();
 				this.processos.remove(0);
 			}
 		}
@@ -141,13 +180,23 @@ public class Escalonador {
 			}
 		}
 	}
-	public boolean temProcesso() {
-		// TODO Auto-generated method stub
+	
+	//Este metodo retorna true se o escalonador tiver processos executando ou se tem processos para serem executados
+	public boolean temProcessosExecutando() {
 		if (this.executando != null) {
 			return true;
-		}else if(this.processos.size() > 0){
+		}
+		return false;
+	}
+	
+	//Este metodo retorna true se ouver algum tipo de processo dentro do escalonador
+	public boolean temProcesso() {
+		// TODO Auto-generated method stub
+		if (this.temProcessosExecutando()) {
 			return true;
-		}else if(this.bloqueados.size() > 0) {
+		}else if(this.haProcessoEsperando()){
+			return true;
+		}else if(this.haProcessoBloqueado()) {
 			return true;
 		}
 		return false;
