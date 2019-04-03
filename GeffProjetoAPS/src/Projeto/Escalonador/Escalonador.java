@@ -28,8 +28,8 @@ public class Escalonador {
 		return processos;
 	}
 	public String getStatus() {
-		status = "Status: ";
-		return status+this.geraStatusComplemento()+
+		this.status = "Status: ";
+		return this.status+this.geraStatusComplemento()+
 				"    Tick: "+this.getTick()+"\n"+
 				"    Quantium: "+this.getQuantium();
 		
@@ -81,7 +81,8 @@ public class Escalonador {
 	public void executandoVaiParaEspera() {
 		this.executando.setStatus("Esperando");
 		this.executando.setQantTickNoEscalonador(0);
-		this.processos.add(executando);
+		this.processos.add(this.executando);
+		this.executando = null;
 		//trocar para os metodos gets e sets
 	}
 	public void esperandoVaiParaExecutar() {
@@ -101,7 +102,7 @@ public class Escalonador {
 		this.processos.add(p);
 	}
 	public void addProcesso(Processo p) {
-		if(this.processos.size() == 0 && executando == null) {
+		if(this.processos.size() == 0 && this.executando == null) {
 			p.setStatus("Executando");
 			this.executando = p;
 		}
@@ -109,35 +110,49 @@ public class Escalonador {
 			this.addProcessoSemExecutar(p);
 		}
 	}
+	
+	//Esse metodo retorna true se houver processos esperando
 	public boolean haProcessoEsperando() {
 		if(this.processos.size()>0) {
 			return true;
 		}
 		return false;
 	}
+	
+	//Esse metodo retorna true se houver processos bloqueados
 	public boolean haProcessoBloqueado() {
 		if(this.bloqueados.size() > 0) {
 			return true;
 		}
 		return false;
 	}
+	
+	//Esse metodo incrementa o tempo que o processo está no escalonador
 	public void incrementaTempoNoEscalonador() {
 		this.executando.incrementaTempoNoEscalonador();
 	}
+
 	public void finalizarProcesso(String nome) {
-		if (executando.getNome() == nome) {
-			executando = null;
-			if (this.processos.size() > 0) {
-				this.processos.get(0).setStatus("Executando");
-				executando = this.processos.get(0);
-				this.processos.remove(0);
-			}
-		} else {
-			for (Processo p : this.processos) {
-				if (p.getNome() == nome) {
-					this.processos.remove(p);
-					break;
+		if (this.temProcessosExecutando()) {
+			if (executando.getNome() == nome) {
+				this.executando = null;
+				if (this.processos.size() > 0) {
+					this.processos.get(0).setStatus("Executando");
+					this.executando = this.processos.get(0);
+					this.processos.remove(0);
 				}
+			}
+		}
+		for (Processo p : this.processos) {
+			if (p.getNome() == nome) {
+				this.processos.remove(p);
+				break;
+			}
+		}
+		for (Processo p : this.bloqueados) {
+			if (p.getNome() == nome) {
+				this.bloqueados.remove(p);
+				break;
 			}
 		}
 	}
@@ -146,16 +161,18 @@ public class Escalonador {
 	}
 	public void bloquearProcesso(String nome) {
 		// TODO Auto-generated method stub
-		if(this.executando.getNome() == nome) {
-			this.zeraQuantNoEscalonador();
-			this.executando.setStatus("Bloqueado");
-			this.bloqueados.add(executando);
-			this.executando = null;
-			if(this.haProcessoEsperando()) {
-				this.executando = processos.get(0);
-				this.executando.setStatus("Executando");
+		if (this.temProcessosExecutando()) {
+			if (this.executando.getNome() == nome) {
 				this.zeraQuantNoEscalonador();
-				this.processos.remove(0);
+				this.executando.setStatus("Bloqueado");
+				this.bloqueados.add(executando);
+				this.executando = null;
+				if (this.haProcessoEsperando()) {
+					this.executando = processos.get(0);
+					this.executando.setStatus("Executando");
+					this.zeraQuantNoEscalonador();
+					this.processos.remove(0);
+				}
 			}
 		}
 		for (Processo p:processos) {
@@ -175,13 +192,13 @@ public class Escalonador {
 			if(p.getNome()==nome) {
 				p.setStatus("Esperando");
 				this.addProcesso(p);
-				bloqueados.remove(p);
+				this.bloqueados.remove(p);
 				break;
 			}
 		}
 	}
 	
-	//Este metodo retorna true se o escalonador tiver processos executando ou se tem processos para serem executados
+	//Este metodo retorna true se o escalonador tiver processos executando
 	public boolean temProcessosExecutando() {
 		if (this.executando != null) {
 			return true;
@@ -200,6 +217,9 @@ public class Escalonador {
 			return true;
 		}
 		return false;
+	}
+	public List<Processo> getBloqueados() {
+		return this.bloqueados;
 	}
 
 }

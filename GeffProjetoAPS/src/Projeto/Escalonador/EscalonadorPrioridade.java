@@ -72,13 +72,12 @@ public class EscalonadorPrioridade extends Escalonador{
 	public int getTick() {
 		return tick;
 	}
+	
+	//Esse metodo intercala os processos e avança o tick
 	public void avancarTick() {
 		this.intercalaProcesso();
 		this.tick++;
 	}
-	/*public void intercalaProcesso() {
-		if(this.p1.)    //Começo do fatoramento do intercalaProcesso()
-	}*/
 	public void intercalaProcesso() {
 		if (this.p1.temProcessosExecutando()) {
 			if (this.p1.haProcessoEsperando()) {
@@ -98,26 +97,45 @@ public class EscalonadorPrioridade extends Escalonador{
 			}
 		}
 	}
-	/*public void intercalaProcesso() {
-		if(this.haProcessoEsperando()) {
-			this.incrementaTempoNoEscalonador();
-			if (this.estourouQuantium()) {
-				this.executaProximoProcesso();
-			}
-		}
-	}*/
 	public void addProcesso(ProcessoPrioridade p) {
 		if(p.getPrioridade() == 1) {
-			p1.addProcesso(p);
-		}else if(p.getPrioridade() == 2) {
-			p2.addProcesso(p);
+			this.p1.addProcesso(p);
+			if (this.p2.temProcessosExecutando()) {
+				this.p2.executandoVaiParaEspera();
+			}else if(this.p3.temProcessosExecutando()) {
+				this.p3.executandoVaiParaEspera();
+			}else if(this.p4.temProcessosExecutando()) {
+				this.p4.executandoVaiParaEspera();
+			}
+		} else if (p.getPrioridade() == 2) {
+			if (this.p1.temProcessosExecutando()) {
+				this.p2.addProcessoSemExecutar(p);
+			} else {
+				this.p2.addProcesso(p);
+				if (this.p3.temProcessosExecutando()) {
+					this.p3.executandoVaiParaEspera();
+				} else if (this.p4.temProcessosExecutando()) {
+					this.p4.executandoVaiParaEspera();
+				}
+			}
 		}else if (p.getPrioridade() == 3) {
-			p3.addProcesso(p);
+			if(this.p2.temProcessosExecutando() || this.p1.temProcessosExecutando()) {
+				this.p3.addProcessoSemExecutar(p);
+			}
+			else{
+				this.p3.addProcesso(p);
+				if(this.p4.temProcessosExecutando()) {
+					this.p4.executandoVaiParaEspera();
+				}
+			}
 		}else {
-			p4.addProcesso(p);
+			if(this.p3.temProcessosExecutando() || this.p2.temProcessosExecutando() || this.p1.temProcessosExecutando()) {
+				this.p4.addProcessoSemExecutar(p);
+			}else {
+				this.p4.addProcesso(p);
+			}
 		}
 	}
-
 	public boolean processoInPrioridade(String nome, Escalonador e) {
 		if (e.getExecutando() != null) {
 			if (e.getExecutando().getNome() == nome) {
@@ -126,6 +144,11 @@ public class EscalonadorPrioridade extends Escalonador{
 		}
 		for (Processo p : e.getProcessos()) {
 			if (p.getNome() == nome) {
+				return true;
+			}
+		}
+		for (Processo p: e.getBloqueados() ) {
+			if(p.getNome() == nome) {
 				return true;
 			}
 		}
@@ -144,4 +167,71 @@ public class EscalonadorPrioridade extends Escalonador{
 		}
 	}
 
+	public void bloquearProcesso(String nome) {
+		if (this.processoInPrioridade(nome, this.p1)) {
+			this.p1.bloquearProcesso(nome);
+			if (!this.p1.temProcessosExecutando()) {
+				if (this.p2.haProcessoEsperando()) {
+					this.p2.esperandoVaiParaExecutar();
+				} else if (this.p3.haProcessoEsperando()) {
+					this.p3.esperandoVaiParaExecutar();
+				} else if (this.p4.haProcessoEsperando()) {
+					this.p4.esperandoVaiParaExecutar();
+				}
+			}
+		} else if (this.processoInPrioridade(nome, this.p2)) {
+			this.p2.bloquearProcesso(nome);
+			if (!this.p2.temProcessosExecutando()) {
+				if (this.p3.haProcessoEsperando()) {
+					this.p3.esperandoVaiParaExecutar();
+				} else if (this.p4.haProcessoEsperando()) {
+					this.p4.esperandoVaiParaExecutar();
+				}
+			}
+		} else if (this.processoInPrioridade(nome, this.p3)) {
+			this.p3.bloquearProcesso(nome);
+			if (!this.p3.temProcessosExecutando()) {
+				if (this.p4.haProcessoEsperando()) {
+					this.p4.esperandoVaiParaExecutar();
+				}
+			}
+		}else if(this.processoInPrioridade(nome, this.p4)) {
+			this.p4.bloquearProcesso(nome);
+		}
+	}
+	
+	// Fazer com que o processo bloqueado não volte a ser executado caso haja alguem com prioridade maior que ele
+	// Frase do algoritimo, "Voltei, mas já tem gente na frente, pode continuar, vou esperar"
+	public void desbloquearProcesso(String nome) {
+		if(this.processoInPrioridade(nome, this.p1)) {
+			this.p1.desbloquearProcesso(nome);
+			if (this.p1.temProcessosExecutando()) {
+				if(this.p2.temProcessosExecutando()) {
+					this.p2.executandoVaiParaEspera();
+				}else if (this.p3.temProcessosExecutando()) {
+					this.p3.executandoVaiParaEspera();
+				}else if (this.p4.temProcessosExecutando()) {
+					this.p4.executandoVaiParaEspera();
+				}
+			}
+		}else if (this.processoInPrioridade(nome, this.p2)) {
+			this.p2.desbloquearProcesso(nome);
+			if (this.p2.temProcessosExecutando()) {
+				if(this.p3.temProcessosExecutando()) {
+					this.p3.executandoVaiParaEspera();
+				}else if (this.p4.temProcessosExecutando()) {
+					this.p4.executandoVaiParaEspera();
+				}
+			}
+		}else if (this.processoInPrioridade(nome, this.p3)) {
+			this.p3.desbloquearProcesso(nome);
+			if (this.p3.temProcessosExecutando()) {
+				if(this.p4.temProcessosExecutando()) {
+					this.p4.executandoVaiParaEspera();
+				}
+			}
+		}else if(this.processoInPrioridade(nome, this.p4)) {
+			this.p4.desbloquearProcesso(nome);
+		}
+	}
 }
