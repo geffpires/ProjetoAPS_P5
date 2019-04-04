@@ -1,6 +1,6 @@
 package Projeto.Escalonador;
 
-public class EscalonadorPrioridade extends Escalonador{
+public class EscalonadorPrioridade {
 	//fazer com que essa variavel seja um singleton
 	//private ProcessoPrioridade executandoPrioridade;//fazer esse atributo ser statico 
 								//assim só preciso de um para
@@ -11,15 +11,36 @@ public class EscalonadorPrioridade extends Escalonador{
 	private Escalonador p4;
 	private int tick = 0;
 	private String status;
+	private int quantium;
 
 	public EscalonadorPrioridade(int quantium) {
-		super(quantium);
-		p1 = new Escalonador(quantium);
-		p2 = new Escalonador(quantium);
-		p3 = new Escalonador(quantium);
-		p4 = new Escalonador(quantium);
+		this.quantium = quantium;
+		this.p1 = new Escalonador(quantium);
+		this.p2 = new Escalonador(quantium);
+		this.p3 = new Escalonador(quantium);
+		this.p4 = new Escalonador(quantium);
 		
 		// TODO Auto-generated constructor stub
+	}
+	
+	public Escalonador getPrioridadeP1() {
+		return this.p1;
+	}
+
+	public Escalonador getPrioridadeP2() {
+		return this.p2;
+	}
+
+	public Escalonador getPrioridadeP3() {
+		return this.p3;
+	}
+
+	public Escalonador getPrioridadeP4() {
+		return this.p4;
+	}
+
+	public int getQuantium(){
+		return this.quantium;
 	}
 	public String getStatus() {
 		status = "Status: ";
@@ -158,10 +179,31 @@ public class EscalonadorPrioridade extends Escalonador{
 	public void finalizarProcesso(String nome) {
 		if(processoInPrioridade(nome,this.p1)) {
 			this.p1.finalizarProcesso(nome);
+			if (!this.p1.temProcessosExecutando()) { //Se não tiver nenhum processo executando os outros escalonadores devem executar seus processos
+				if (this.p2.haProcessoEsperando()) { // Tem processo para executar? se sim, execute, caso contrario
+					this.p2.esperandoVaiParaExecutar();
+				} else if (this.p3.haProcessoEsperando()) { //Tem processo para executar? se sim, execute, caso contrario
+					this.p2.esperandoVaiParaExecutar();
+				} else if (this.p4.haProcessoEsperando()) {//Tem processo para executar? se sim, execute
+					this.p4.esperandoVaiParaExecutar();
+				}
+			}
 		}else if(processoInPrioridade(nome,this.p2)) {
 			this.p2.finalizarProcesso(nome);
+			if(!this.p2.temProcessosExecutando()) {
+				if (this.p3.haProcessoEsperando()) {
+					this.p3.esperandoVaiParaExecutar();
+				}else if(this.p4.haProcessoEsperando()) {
+					this.p4.esperandoVaiParaExecutar();
+				}
+			}
 		}else if(processoInPrioridade(nome,this.p3)) {
 			this.p3.finalizarProcesso(nome);
+			if (!this.p3.temProcessosExecutando()) {
+				if(this.p4.haProcessoEsperando()) {
+					this.p4.esperandoVaiParaExecutar();
+				}
+			}
 		}else if(processoInPrioridade(nome,this.p4)) {
 			this.p4.finalizarProcesso(nome);
 		}
@@ -230,8 +272,23 @@ public class EscalonadorPrioridade extends Escalonador{
 					this.p4.executandoVaiParaEspera();
 				}
 			}
+			if (this.p1.temProcessosExecutando() 
+					&& this.p2.temProcessosExecutando()) {
+				this.p2.executandoVaiParaEspera();
+			}
+			if ((this.p1.temProcessosExecutando() ||
+					this.p2.temProcessosExecutando()) 
+					&& this.p3.temProcessosExecutando()) {
+				this.p3.executandoVaiParaEspera();
+			}
 		}else if(this.processoInPrioridade(nome, this.p4)) {
 			this.p4.desbloquearProcesso(nome);
+			if ((this.p1.temProcessosExecutando() || 
+					this.p2.temProcessosExecutando() || 
+					this.p3.temProcessosExecutando()) 
+					&& this.p4.temProcessosExecutando()) {
+				this.p4.executandoVaiParaEspera();
+			}
 		}
 	}
 }

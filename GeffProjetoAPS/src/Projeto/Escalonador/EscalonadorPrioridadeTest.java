@@ -168,6 +168,33 @@ class EscalonadorPrioridadeTest {
 				+ "    Tick: 0\n"
 				+ "    Quantium: 3"));
 	}
+	@Test//faltou, fazer o resto deles
+	public void intercalaProcessoNaMesmaPrioridade1() {
+		EscalonadorPrioridade ep = new EscalonadorPrioridade(3);
+		ep.addProcesso(new ProcessoPrioridade("P1",1));
+		ep.addProcesso(new ProcessoPrioridade("P2",1));
+		assertEquals(ep.getStatus(),("Status: 1 - P1 (Executando)\n"
+				+ "P2 (Esperando)\n"
+				+ "    2 - \n"
+				+ "    3 - \n"
+				+ "    4 - \n"
+				+ "    Tick: 0\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();
+		assertEquals(ep.getPrioridadeP1().getExecutando().getQantTickNoEscalonador(),1);
+		ep.avancarTick();
+		assertEquals(ep.getPrioridadeP1().getExecutando().getQantTickNoEscalonador(),2);
+		ep.avancarTick();
+		assertEquals(ep.getPrioridadeP1().getExecutando().getQantTickNoEscalonador(),3);
+		ep.avancarTick();
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\n"
+				+ "P1 (Esperando)\n"
+				+ "    2 - \n"
+				+ "    3 - \n"
+				+ "    4 - \n"
+				+ "    Tick: 4\n"
+				+ "    Quantium: 3"));
+	}
 	@Test//T15
 	public void finalizarProcessoNaPrioridade1() {
 		EscalonadorPrioridade ep = new EscalonadorPrioridade(3);
@@ -873,122 +900,345 @@ class EscalonadorPrioridadeTest {
 				+ "    4 - P3 (Esperando)\n"
 				+ "    Tick: 8\n"
 				+ "    Quantium: 3"));
-		
 		//Teste rodando até aqui, ok
-		/*ep.desbloquearProcesso("P1");
+		ep.desbloquearProcesso("P1");
 		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\n"
 				+ "    2 - \n"
 				+ "    3 - P1 (Esperando)\n"
 				+ "    4 - P3 (Esperando)\n"
 				+ "    Tick: 8\n"
 				+ "    Quantium: 3"));
-		/*ep.addProcesso(new ProcessoPrioridade("P4",1));
-		assertEquals(ep.getStatus(),("Status: 1 - \n"
+		ep.addProcesso(new ProcessoPrioridade("P4",1));
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Esperando)\n"
 				+ "    2 - \n"
-				+ "    3 - P1 (Executando)\n"
-				+ "    4 - \n"
-				+ "    Tick: 0\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 8\n"
 				+ "    Quantium: 3"));
 		ep.avancarTick();//9
-		assertEquals(ep.getStatus(),("Status: 1 - \n"
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Esperando)\n"
 				+ "    2 - \n"
-				+ "    3 - P1 (Executando)\n"
-				+ "    4 - \n"
-				+ "    Tick: 0\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 9\n"
 				+ "    Quantium: 3"));
 		ep.avancarTick();//10
-		assertEquals(ep.getStatus(),("Status: 1 - \n"
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Esperando)\n"
 				+ "    2 - \n"
-				+ "    3 - P1 (Executando)\n"
-				+ "    4 - \n"
-				+ "    Tick: 0\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 10\n"
 				+ "    Quantium: 3"));
 		ep.addProcesso(new ProcessoPrioridade("P5",2));
-		assertEquals(ep.getStatus(),("Status: 1 - \n"
-				+ "    2 - \n"
-				+ "    3 - P1 (Executando)\n"
-				+ "    4 - \n"
-				+ "    Tick: 0\n"
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Esperando)\n"
+				+ "    2 - P5 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 10\n"
 				+ "    Quantium: 3"));
 		ep.addProcesso(new ProcessoPrioridade("P6",2));
-		assertEquals(ep.getStatus(),("Status: 1 - \n"
-				+ "    2 - \n"
-				+ "    3 - P1 (Executando)\n"
-				+ "    4 - \n"
-				+ "    Tick: 0\n"
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Esperando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 10\n"
 				+ "    Quantium: 3"));
 		ep.avancarTick();//11
-		assertEquals(ep.getStatus(),("Status: 1 - \n"
-				+ "    2 - \n"
-				+ "    3 - P1 (Executando)\n"
-				+ "    4 - \n"
-				+ "    Tick: 0\n"
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Esperando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 11\n"
 				+ "    Quantium: 3"));
+		assertEquals(ep.getPrioridadeP1().getExecutando().getQantTickNoEscalonador(),3);
 		ep.avancarTick();//12
-		assertEquals(ep.getStatus(),("Status: 1 - \n"
-				+ "    2 - \n"
-				+ "    3 - P1 (Executando)\n"
-				+ "    4 - \n"
-				+ "    Tick: 0\n"
+		assertEquals(ep.getStatus(),("Status: 1 - P4 (Executando)\nP2 (Esperando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 12\n"
 				+ "    Quantium: 3"));
 		ep.avancarTick();//13
-		assertEquals(ep.getStatus(),("Status: 1 - \n"
-				+ "    2 - \n"
-				+ "    3 - P1 (Executando)\n"
-				+ "    4 - \n"
-				+ "    Tick: 0\n"
+		assertEquals(ep.getStatus(),("Status: 1 - P4 (Executando)\nP2 (Esperando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 13\n"
 				+ "    Quantium: 3"));
 		ep.avancarTick();//14
-		assertEquals(ep.getStatus(),("Status: 1 - \n"
-				+ "    2 - \n"
-				+ "    3 - P1 (Executando)\n"
-				+ "    4 - \n"
-				+ "    Tick: 0\n"
+		assertEquals(ep.getStatus(),("Status: 1 - P4 (Executando)\nP2 (Esperando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 14\n"
 				+ "    Quantium: 3"));
 		ep.avancarTick();//15
-		assertEquals(ep.getStatus(),("Status: 1 - \n"
-				+ "    2 - \n"
-				+ "    3 - P1 (Executando)\n"
-				+ "    4 - \n"
-				+ "    Tick: 0\n"
+		assertEquals(ep.getPrioridadeP1().getExecutando().getQantTickNoEscalonador(),3);
+		assertEquals(ep.getStatus(),("Status: 1 - P4 (Executando)\nP2 (Esperando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 15\n"
 				+ "    Quantium: 3"));
 		ep.avancarTick();//16
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Esperando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 16\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//17
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Esperando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 17\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//18
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Esperando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 18\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//19
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Esperando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 19\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//20
+		assertEquals(ep.getStatus(),("Status: 1 - P4 (Executando)\nP2 (Esperando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 20\n"
+				+ "    Quantium: 3"));
 		ep.bloquearProcesso("P4");
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Bloqueado)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 20\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//21
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Bloqueado)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 21\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//22
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Bloqueado)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 22\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//23
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Bloqueado)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 23\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//24
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Bloqueado)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 24\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//25
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Bloqueado)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 25\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//26
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Bloqueado)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 26\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//27
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Bloqueado)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 27\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//28
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Bloqueado)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 28\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//29
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Bloqueado)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 29\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//30
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\nP4 (Bloqueado)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 30\n"
+				+ "    Quantium: 3"));
 		ep.finalizarProcesso("P4");
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 30\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//31
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 31\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//32
+		assertEquals(ep.getStatus(),("Status: 1 - P2 (Executando)\n"
+				+ "    2 - P5 (Esperando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 32\n"
+				+ "    Quantium: 3"));
 		ep.finalizarProcesso("P2");
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P5 (Executando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 32\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//33
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P5 (Executando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 33\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//34
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P5 (Executando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 34\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//35
-		ep.avancarTick();//36
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P5 (Executando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 35\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();//36 --
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P6 (Executando)\nP5 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 36\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//37
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P6 (Executando)\nP5 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 37\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//38
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P6 (Executando)\nP5 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 38\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//39
-		ep.avancarTick();//40
-		ep.bloquearProcesso("P45");
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P6 (Executando)\nP5 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 39\n"
+				+ "    Quantium: 3"));
+		ep.avancarTick();//40--
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P5 (Executando)\nP6 (Esperando)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 40\n"
+				+ "    Quantium: 3"));
+		ep.bloquearProcesso("P5");
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P6 (Executando)\nP5 (Bloqueado)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 40\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//41
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P6 (Executando)\nP5 (Bloqueado)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 41\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//42
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P6 (Executando)\nP5 (Bloqueado)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 42\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//43
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P6 (Executando)\nP5 (Bloqueado)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 43\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//44
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P6 (Executando)\nP5 (Bloqueado)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 44\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//45
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P6 (Executando)\nP5 (Bloqueado)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 45\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//46
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P6 (Executando)\nP5 (Bloqueado)\n"
+				+ "    3 - P1 (Esperando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 46\n"
+				+ "    Quantium: 3"));
 		ep.finalizarProcesso("P6");
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P5 (Bloqueado)\n"
+				+ "    3 - P1 (Executando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 46\n"
+				+ "    Quantium: 3"));
 		ep.avancarTick();//47*/
+		assertEquals(ep.getStatus(),("Status: 1 - \n"
+				+ "    2 - P5 (Bloqueado)\n"
+				+ "    3 - P1 (Executando)\n"
+				+ "    4 - P3 (Esperando)\n"
+				+ "    Tick: 47\n"
+				+ "    Quantium: 3"));
 		
 	}
 
