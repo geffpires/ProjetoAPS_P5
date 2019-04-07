@@ -1,10 +1,9 @@
 package Projeto.Escalonador;
 
 public class EscalonadorPrioridade {
-	//fazer com que essa variavel seja um singleton
-	//private ProcessoPrioridade executandoPrioridade;//fazer esse atributo ser statico 
-								//assim só preciso de um para
-								//os quatro processadores
+	
+	/* Os 4 escalonadores podem ser uma lista de escalonador, 
+	*caso ele se torne uma lista, os metodos deverão ser alterados	*/
 	private Escalonador p1;
 	private Escalonador p2;
 	private Escalonador p3;
@@ -23,6 +22,7 @@ public class EscalonadorPrioridade {
 		// TODO Auto-generated constructor stub
 	}
 	
+	//Os gets que irão se juntar e tornar um retorno da lista
 	public Escalonador getPrioridadeP1() {
 		return this.p1;
 	}
@@ -49,6 +49,8 @@ public class EscalonadorPrioridade {
 				"    Tick: "+this.getTick()+"\n"+
 				"    Quantium: "+this.getQuantium();
 	}
+	
+	//Gera status sera um for em vez de apenas ifs e else.
 	public String geraStatus() {
 		String statusComplemento = "";
 		if (this.temProcesso() == false) {
@@ -81,6 +83,8 @@ public class EscalonadorPrioridade {
 		}
 	return statusComplemento;
 	}
+	
+	//Varrerar a lista de Escalonador para
 	public boolean temProcesso() {
 		if(this.p1.temProcesso() ||
 				this.p2.temProcesso() ||
@@ -89,7 +93,7 @@ public class EscalonadorPrioridade {
 			return true;
 		}
 		return false;
-	}//Fatorar esse metodo
+	}
 	public int getTick() {
 		return tick;
 	}
@@ -99,14 +103,16 @@ public class EscalonadorPrioridade {
 		this.intercalaProcesso();
 		this.tick++;
 	}
+	
+	//Tornara um for para varrer os escalonadores e então usar o metodo intercalar neles
 	public void intercalaProcesso() {
 		if (this.p1.temProcessosExecutando()) {
 			if (this.p1.haProcessoEsperando()) {
 				this.p1.intercalaProcesso();
 			}
-		} else if (this.p2.temProcessosExecutando()) {
-			if (this.p2.haProcessoEsperando()) {
-				this.p2.intercalaProcesso();
+		} else if (this.p2.temProcessosExecutando()) {							//Esse metodo verifica se existe processo executando
+			if (this.p2.haProcessoEsperando()) {								//em cada escalonador, e se houver pergunta se tem processos
+				this.p2.intercalaProcesso();									//para competir com a CPU, e então começa a intercalar eles.
 			}
 		} else if (this.p3.temProcessosExecutando()) {
 			if (this.p3.haProcessoEsperando()) {
@@ -118,6 +124,8 @@ public class EscalonadorPrioridade {
 			}
 		}
 	}
+	
+	//Esse metodo ficaria bem menor com o escalonador como lista, e daria pra fatorar essas linhas repetidas
 	public void addProcesso(ProcessoPrioridade p) {
 		if(p.getPrioridade() == 1) {
 			this.p1.addProcesso(p);
@@ -129,8 +137,8 @@ public class EscalonadorPrioridade {
 				this.p4.executandoVaiParaEspera();
 			}
 		} else if (p.getPrioridade() == 2) {
-			if (this.p1.temProcessosExecutando()) {
-				this.p2.addProcessoSemExecutar(p);
+			if (this.p1.temProcessosExecutando()) {							//Esse metodo addiciona o processo no escalonador 
+				this.p2.addProcessoSemExecutar(p);							//refente ao da prioridade que o processador possui
 			} else {
 				this.p2.addProcesso(p);
 				if (this.p3.temProcessosExecutando()) {
@@ -157,14 +165,16 @@ public class EscalonadorPrioridade {
 			}
 		}
 	}
+	
+	//Esse metodo poderia retornar o escalonador que o processo esta
 	public boolean processoInPrioridade(String nome, Escalonador e) {
 		if (e.getExecutando() != null) {
 			if (e.getExecutando().getNome() == nome) {
 				return true;
 			}
 		}
-		for (Processo p : e.getProcessos()) {
-			if (p.getNome() == nome) {
+		for (Processo p : e.getProcessos()) {				// Esse metodo retorna verdadeiro se for encontrado
+			if (p.getNome() == nome) {						//o processo no ascalonador que é tbm passado como parametro
 				return true;
 			}
 		}
@@ -175,15 +185,17 @@ public class EscalonadorPrioridade {
 		}
 		return false;
 	}
-	//Lançar exceção de não encontrado
+	
+	//Lançar exceção de não encontrado.
+	//Esse metodo poderia ser feito em um tamanho menor, usando o metodo de processoInPrioridade(), visto que ele retornaria ja o escalonador na qual o processo se encontra.
 	public void finalizarProcesso(String nome) {
-		if(processoInPrioridade(nome,this.p1)) {
-			this.p1.finalizarProcesso(nome);
+		if(processoInPrioridade(nome,this.p1)) {//O processo que eu quero finalizar, está nesse escalonador?
+			this.p1.finalizarProcesso(nome);	//Se sim, finalize ele
 			if (!this.p1.temProcessosExecutando()) { //Se não tiver nenhum processo executando os outros escalonadores devem executar seus processos
 				if (this.p2.haProcessoEsperando()) { // Tem processo para executar? se sim, execute, caso contrario
-					this.p2.esperandoVaiParaExecutar();
+					this.p2.esperandoVaiParaExecutar();// O Processo que estava esperando vai ser executado
 				} else if (this.p3.haProcessoEsperando()) { //Tem processo para executar? se sim, execute, caso contrario
-					this.p2.esperandoVaiParaExecutar();
+					this.p2.esperandoVaiParaExecutar();		
 				} else if (this.p4.haProcessoEsperando()) {//Tem processo para executar? se sim, execute
 					this.p4.esperandoVaiParaExecutar();
 				}
@@ -208,7 +220,10 @@ public class EscalonadorPrioridade {
 			this.p4.finalizarProcesso(nome);
 		}
 	}
-
+	
+	//Lançar exceção de não encontrado.
+	//Esse metodo poderia ser feito em um tamanho menor, usando o metodo de processoInPrioridade(), 
+	//visto que ele retornaria ja o escalonador na qual o processo se encontra.
 	public void bloquearProcesso(String nome) {
 		if (this.processoInPrioridade(nome, this.p1)) {
 			this.p1.bloquearProcesso(nome);
@@ -242,8 +257,9 @@ public class EscalonadorPrioridade {
 		}
 	}
 	
-	// Fazer com que o processo bloqueado não volte a ser executado caso haja alguem com prioridade maior que ele
-	// Frase do algoritimo, "Voltei, mas já tem gente na frente, pode continuar, vou esperar"
+	//Lançar exceção de não encontrado.
+	//Esse metodo poderia ser feito em um tamanho menor, usando o metodo de processoInPrioridade(), 
+	//visto que ele retornaria ja o escalonador na qual o processo se encontra.
 	public void desbloquearProcesso(String nome) {
 		if(this.processoInPrioridade(nome, this.p1)) {
 			this.p1.desbloquearProcesso(nome);
@@ -291,4 +307,7 @@ public class EscalonadorPrioridade {
 			}
 		}
 	}
+	// Os metodos finalizar, bloquear e desbloquear eles precisam sempre 
+	//verificar se tem alguem com prioridade maior ou menor executando ou não para 
+	//que ele tome a posse do processador ou pare de executar
 }

@@ -2,6 +2,8 @@ package Projeto.Escalonador;
 
 public class ProcessoPrioridade extends Processo{
 	private int prioridade;
+	
+	//Não deixar ser criado processo sem prioridade, lançar exceção
 	public ProcessoPrioridade(String nome, int prioridade) {
 		super(nome);
 		this.prioridade = prioridade;
