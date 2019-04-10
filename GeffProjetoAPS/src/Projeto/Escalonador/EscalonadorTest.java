@@ -1,6 +1,6 @@
 package Projeto.Escalonador;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
@@ -292,5 +292,205 @@ class EscalonadorTest {
 				+ "    Tick: 2\n"
 				+ "    Quantium: 3");
 	}
+	/* Lucas */
+	@Test//19
+	public void tresProcessos() {
+		Escalonador e = new Escalonador(3);
+		e.addProcesso(new Processo ("P1"));
+		e.addProcesso(new Processo ("P2"));
+		e.addProcesso(new Processo ("P3"));
+		assertEquals(e.getStatus(),("Status: P1 (Executando)\n"
+				+ "P2 (Esperando)\n"
+				+ "P3 (Esperando)\n"
+				+ "    Tick: 0\n"
+				+ "    Quantium: 3"));
+		e.avancarTick();
+		assertEquals(e.getStatus(),("Status: P1 (Executando)\n"
+				+ "P2 (Esperando)\n"
+				+ "P3 (Esperando)\n"
+				+ "    Tick: 1\n"
+				+ "    Quantium: 3"));
+		e.avancarTick();
+		assertEquals(e.getStatus(),("Status: P1 (Executando)\n"
+				+ "P2 (Esperando)\n"
+				+ "P3 (Esperando)\n"
+				+ "    Tick: 2\n"
+				+ "    Quantium: 3"));
+		e.avancarTick();
+		e.finalizarProcesso("P1");
+		assertEquals(e.getStatus(),("Status: P2 (Executando)\n"
+				+ "P3 (Esperando)\n"
+				+ "    Tick: 3\n"
+				+ "    Quantium: 3"));
+		e.avancarTick();
+		assertEquals(e.getStatus(),("Status: P2 (Executando)\n"
+				+ "P3 (Esperando)\n"
+				+ "    Tick: 4\n"
+				+ "    Quantium: 3"));
+		e.avancarTick();
+		assertEquals(e.getStatus(),("Status: P2 (Executando)\n"
+				+ "P3 (Esperando)\n"
+				+ "    Tick: 5\n"
+				+ "    Quantium: 3"));
+		e.finalizarProcesso("P2");
+	
+	}
+	
+	@Test //20
+	public void testProcessosEntrandoEsaindo() {
+		Escalonador e = new Escalonador(2);
+		e.addProcesso(new Processo("P1"));
+		assertEquals(e.getStatus(),("Status: P1 (Executando)\n"
+				+ "    Tick: 0\n"
+				+ "    Quantium: 2"));
+		e.avancarTick();
+		assertEquals(e.getStatus(),("Status: P1 (Executando)\n"
+				+ "    Tick: 1\n"
+				+ "    Quantium: 2"));
+		e.finalizarProcesso("P1");
+		e.avancarTick();
+		e.addProcesso(new Processo("P2"));
+		e.addProcesso(new Processo("P3"));
+		assertEquals(e.getStatus(),("Status: P2 (Executando)\n"
+				+ "P3 (Esperando)\n"
+				+ "    Tick: 2\n"
+				+ "    Quantium: 2"));
+		e.avancarTick();
+		assertEquals(e.getStatus(),("Status: P2 (Executando)\n"
+				+ "P3 (Esperando)\n"
+				+ "    Tick: 3\n"
+				+ "    Quantium: 2"));
+		e.avancarTick();
+		e.executandoVaiParaEspera();
+		e.esperandoVaiParaExecutar();
+		assertEquals(e.getStatus(),("Status: P3 (Executando)\n"
+				+ "P2 (Esperando)\n"
+				+ "    Tick: 4\n"
+				+ "    Quantium: 2"));
+		e.avancarTick();
+		assertEquals(e.getStatus(),("Status: P3 (Executando)\n"
+				+ "P2 (Esperando)\n"
+				+ "    Tick: 5\n"
+				+ "    Quantium: 2"));
+		e.finalizarProcesso("P3");
+		e.avancarTick();
+		e.addProcesso(new Processo("P4"));
+		assertEquals(e.getStatus(),("Status: P2 (Executando)\n"
+				+ "P4 (Esperando)\n"
+				+ "    Tick: 6\n"
+				+ "    Quantium: 2"));
+		e.finalizarProcesso("P2");
+		e.avancarTick();
+		assertEquals(e.getStatus(),("Status: P4 (Executando)\n"
+				+ "    Tick: 7\n"
+				+ "    Quantium: 2"));
+		
+	}
+	
+	@Test //21
+	public void escalonadorIniciandoVazio() {
+		Escalonador e = new Escalonador(3);
+		assertEquals(e.getStatus(),("Status: Nenhum processo\n"
+				+ "    Tick: 0\n"
+				+ "    Quantium: 3"));
+		e.avancarTick();
+		assertEquals(e.getStatus(),("Status: Nenhum processo\n"
+				+ "    Tick: 1\n"
+				+ "    Quantium: 3"));
+		e.avancarTick();
+		assertEquals(e.getStatus(),("Status: Nenhum processo\n"
+				+ "    Tick: 2\n"
+				+ "    Quantium: 3"));
+		e.addProcesso(new Processo("P1"));
+		e.addProcesso(new Processo("P2"));
+	}
+	@Test //22
+	public void testMetodoEsperando() {
+		Escalonador e = new Escalonador (2);
+		e.addProcesso(new Processo("P1"));
+		e.addProcesso(new Processo("P2"));
+		assertEquals(e.getStatus(),("Status: P1 (Executando)\n"
+				+ "P2 (Esperando)\n"
+				+ "    Tick: 0\n"
+				+ "    Quantium: 2"));
+		e.avancarTick();
+		assertEquals(e.haProcessoEsperando(), true);
+		assertEquals(e.getStatus(),("Status: P1 (Executando)\n"
+				+ "P2 (Esperando)\n"
+				+ "    Tick: 1\n"
+				+ "    Quantium: 2"));
 
+	}
+	
+	@Test //23
+	
+	public void zerandoQuantEsc() {
+		Escalonador e = new Escalonador(2);
+		e.addProcesso(new Processo("P1"));
+		e.addProcesso(new Processo("P2"));
+		e.zeraQuantNoEscalonador();
+		e.avancarTick();
+		assertEquals(e.getStatus(),("Status: P1 (Executando)\n"
+				+ "P2 (Esperando)\n"
+				+ "    Tick: 1\n"
+				+ "    Quantium: 2"));
+	}
+	
+	@Test //24
+	
+	public void testProcExecutando() {
+		Escalonador e = new Escalonador(2);
+		e.addProcesso(new Processo("P1"));
+		assertEquals(e.temProcessosExecutando(), true);
+		
+	}
+	
+	@Test //25
+	public void test25() {
+		Escalonador e = new Escalonador(1);
+		e.addProcesso(new Processo("P1"));
+		e.addProcesso(new Processo("P2"));
+		e.avancarTick();
+		e.bloquearProcesso("P1");
+		assertEquals(e.getStatus(), ("Status: P2 (Executando)\n"
+				+ "P1 (Bloqueado)\n"
+				+ "    Tick: 1\n"
+				+ "    Quantium: 1"));
+		e.bloquearProcesso("P2");
+		e.avancarTick();
+		e.addProcesso(new Processo("P3"));
+		e.bloquearProcesso("P1");
+		e.avancarTick();
+		assertEquals(e.getStatus(), ("Status: P3 (Executando)\n"
+				+ "P1 (Bloqueado)\n"
+				+ "P2 (Bloqueado)\n"
+				+ "    Tick: 3\n"
+				+ "    Quantium: 1"));
+		
+		
+		
+		
+	}
+	
+	@Test // 26
+	public void test26() {
+		Escalonador e = new Escalonador(3);
+		e.addProcesso(new Processo("P1"));
+		e.addProcesso(new Processo("P2"));
+		e.executaProximoProcesso();
+		
+		assertEquals(e.getStatus(), ("Status: P2 (Executando)\n"
+				+ "P1 (Esperando)\n"
+				+ "    Tick: 0\n"
+				+ "    Quantium: 3"));
+		e.avancarTick();
+		e.esperandoVaiParaExecutar();
+		e.executandoVaiParaEspera();
+		assertEquals(e.getStatus(), ("Status: P1 (Esperando)\n"
+				+ "    Tick: 1\n"
+				+ "    Quantium: 3"));
+	}
+	
+	
 }
+
